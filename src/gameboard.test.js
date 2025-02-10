@@ -34,4 +34,22 @@ describe("Gameboard attributes and methods", () => {
     expect(board.addShip(3, [0, 4], "horizontal")).toBe(true);
     expect(board.addShip(3, [3, 1], "horizontal")).toBe(false);
   });
+  test("Gameboard allow to hit ships or coordinates only one time", () => {
+    const board = gameboard();
+    board.addShip(3, [0, 0], "horizontal");
+    board.receiveAttack([0, 1]);
+    expect(board.receiveAttack([0, 2])).toBe(true);
+    expect(board.receiveAttack([0, 2])).toBe(false);
+    expect(board.addedShips[0].ship.timesHit).toBe(2);
+  });
+
+  test("Gameboard check if all ships are sunk", () => {
+    const board = gameboard();
+    board.addShip(3, [0, 0], "horizontal");
+    expect(board.allShipsSunk()).toBe(false);
+    board.receiveAttack([0, 0]);
+    board.receiveAttack([0, 1]);
+    board.receiveAttack([0, 2]);
+    expect(board.allShipsSunk()).toBe(true);
+  });
 });

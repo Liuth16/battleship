@@ -73,11 +73,40 @@ export default function gameboard() {
     return true;
   }
 
+  function receiveAttack(coordinate) {
+    if (
+      shotCoordinates.some(
+        (shot) => shot[0] === coordinate[0] && shot[1] === coordinate[1]
+      )
+    ) {
+      return false;
+    }
+
+    shotCoordinates.push(coordinate);
+
+    const hitShip = addedShips.find(({ coordinates }) =>
+      coordinates.some(
+        (sCoord) => sCoord[0] === coordinate[0] && sCoord[1] === coordinate[1]
+      )
+    );
+    if (hitShip) {
+      hitShip.ship.hit();
+      return true;
+    }
+    return false;
+  }
+
+  function allShipsSunk() {
+    return addedShips.every(({ ship }) => ship.isSunk());
+  }
+
   return {
     coordinates,
     get addedShips() {
       return addedShips;
     },
     addShip,
+    receiveAttack,
+    allShipsSunk,
   };
 }
