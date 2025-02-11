@@ -1,7 +1,7 @@
 import player from "./player";
 
-function drawCells() {
-  const grid = document.querySelector(".grid");
+function drawCells(number = 1) {
+  const grid = document.querySelector(`.grid${number}`);
   for (let i = 0; i < 100; i++) {
     const cell = document.createElement("div");
     const row = Math.floor(i / 10);
@@ -13,8 +13,8 @@ function drawCells() {
   }
 }
 
-function markShipCells(addedShips) {
-  const cells = document.querySelectorAll(".cell");
+function markShipCells(addedShips, gridNumber = 1) {
+  const cells = document.querySelectorAll(`.grid${gridNumber} .cell`);
 
   cells.forEach((cell) => {
     const row = parseInt(cell.getAttribute("data-row"));
@@ -29,6 +29,7 @@ function markShipCells(addedShips) {
 
     if (isShip) {
       cell.classList.add("ship"); // Add a class to visually mark the ship
+      cell.textContent = "S";
     }
   });
 }

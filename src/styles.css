@@ -47,7 +47,11 @@ h6 {
 
 /* End of reset */
 
-.grid {
+.container {
+  display: flex;
+}
+
+.grid1, .grid2 {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
@@ -55,13 +59,39 @@ h6 {
     height: 500px;
     border: 2px solid black;
     margin: 1rem;
+    /* opacity: 0.7;
+    transition: opacity 0.3s ease; */
 }
+
+/* .grid1[data-active="true"],
+.grid2[data-active="true"] {
+  opacity: 1;
+} */
 
 .cell {
     display: flex;
     border: 1px solid gray;
+    align-items: center;
+    justify-content: center;
 }
 
 .ship {
     background-color: lightblue;
+}
+
+.hit {
+  background-color: #ff6b6b;
+}
+
+.miss {
+  background-color: #a8a8a8;
+}
+
+.ship-selection {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ship-choice {
+  cursor: move;
 }
