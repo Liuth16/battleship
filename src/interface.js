@@ -13,6 +13,23 @@ function drawCells(number = 1) {
   }
 }
 
+function createShipSelection() {
+  const shipLengths = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+  const container = document.createElement("div");
+  container.classList.add("ship-selection");
+
+  shipLengths.forEach((length) => {
+    const ship = document.createElement("div");
+    ship.classList.add("ship-choice");
+    ship.setAttribute("data-length", length);
+    ship.draggable = true;
+    ship.style.width = `${49 * length}px`;
+    ship.style.height = "49px";
+    container.appendChild(ship);
+  });
+  document.body.appendChild(container);
+}
+
 function markShipCells(addedShips, gridNumber = 1) {
   const cells = document.querySelectorAll(`.grid${gridNumber} .cell`);
 
@@ -34,4 +51,4 @@ function markShipCells(addedShips, gridNumber = 1) {
   });
 }
 
-export { drawCells, markShipCells, player };
+export { drawCells, markShipCells, player, createShipSelection };

@@ -1,3 +1,5 @@
+import ship from "./ship";
+
 let currentTurn = 1;
 let gameOver = false;
 let player1Instance;
@@ -8,6 +10,29 @@ function disableAllGrids() {
   allCells.forEach((cell) => {
     cell.style.pointerEvents = "none";
   });
+}
+
+function disableGrid(gridId) {
+  const allCells = document.querySelectorAll(`.grid${gridId}`);
+}
+
+function rotateShip() {
+  document.querySelectorAll(".ship-choice").forEach((ship) => {
+    ship.addEventListener("click", () => doRotation(ship));
+  });
+}
+
+function doRotation(ship) {
+  const lenght = parseInt(ship.getAttribute("data-length"), 10);
+  const isVertical = ship.style.width === "49px";
+
+  if (isVertical) {
+    ship.style.width = `${49 * lenght}px`;
+    ship.style.height = `49px`;
+  } else {
+    ship.style.width = `49px`;
+    ship.style.height = `${49 * lenght}px`;
+  }
 }
 
 function checkVictory(player1, player2) {
@@ -85,7 +110,7 @@ function initializeGameEvents(p1, p2) {
       handleCellClick(cell, player1Instance, player2Instance)
     );
   });
-
+  rotateShip();
   updateGridsInteractivity();
 }
 
