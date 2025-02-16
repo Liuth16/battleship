@@ -12,5 +12,6 @@ drawCells(1);
 drawCells(2);
 const player1 = player();
 const player2 = player();
+markShipCells(player1.addedShips, 1);
 createShipSelection();
-initializeGameEvents();
+initializeGameEvents(player1, player2);

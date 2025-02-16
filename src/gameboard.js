@@ -40,14 +40,14 @@ export default function gameboard() {
     ].filter(isValidCoordinate);
   }
 
-  function addShip(size, coordinate, direction) {
+  function addShip(size, coordinate, isHorizontal) {
     if (!isValidCoordinate(coordinate)) {
       throw new Error("Invalid starting coordinate.");
     }
     const newShip = [];
     for (let i = 0; i < size; i++) {
       const shipCoord =
-        direction === "vertical"
+        isHorizontal === false
           ? [coordinate[0] + i, coordinate[1]]
           : [coordinate[0], coordinate[1] + i];
 

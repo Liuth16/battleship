@@ -22,6 +22,7 @@ function createShipSelection() {
     const ship = document.createElement("div");
     ship.classList.add("ship-choice");
     ship.setAttribute("data-length", length);
+    ship.setAttribute("data-horizontal", "true");
     ship.draggable = true;
     ship.style.width = `${49 * length}px`;
     ship.style.height = "49px";

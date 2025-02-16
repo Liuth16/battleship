@@ -118,3 +118,17 @@ h6 {
 .play-button:hover {
   background-color: #45a049;
 }
+
+.dragover {
+  background-color: purple;
+}
+
+.dragging{
+  opacity: 0.3;
+  background-color: white;
+}
+
+.invisible {
+  opacity: 0;
+  pointer-events: none;
+}
