@@ -49,6 +49,8 @@ h6 {
 
 .container {
   display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 .grid1, .grid2 {
@@ -131,4 +133,16 @@ h6 {
 .invisible {
   opacity: 0;
   pointer-events: none;
+}
+
+#game-status {
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
 }

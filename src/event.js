@@ -9,6 +9,7 @@ let player1Instance;
 let player2Instance;
 let isComputerGame = false;
 let computerInstance;
+let gameStatus;
 
 function checkVictory(player1, player2) {
   if (player1.allShipsSunk()) {
@@ -94,11 +95,13 @@ function checkShipPlacement() {
         rotateShip();
         draggableSource();
       }
+      gameStatus.updateText();
     }
   } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
       placingShips = 3;
       updateGridsInteractivity();
+      gameStatus.updateText();
     }
   }
 }
@@ -264,7 +267,8 @@ function switchTurn() {
   if (gameOver) return;
   currentTurn = currentTurn === 1 ? 2 : 1;
   updateGridsInteractivity();
-
+  gameStatus.updateText();
+  
   if (isComputerGame && currentTurn === 2) {
     handleComputerTurn();
   }
@@ -317,6 +321,8 @@ function handleCellClick(cell, attackingPlayer, defendingPlayer) {
 function initializeGameEvents(p1, p2) {
   player1Instance = p1;
   player2Instance = p2;
+  gameStatus = updateGameStatus();
+  gameStatus.updateText();
   const grid1Cells = document.querySelectorAll(".grid1 .cell");
   const grid2Cells = document.querySelectorAll(".grid2 .cell");
   grid1Cells.forEach((cell) => {
@@ -334,6 +340,51 @@ function initializeGameEvents(p1, p2) {
   playComputer();
   checkShipPlacement();
   dragTarget(placingShips);
+}
+
+function updateGameStatus() {
+  const existingStatus = document.getElementById('game-status');
+  if (existingStatus) {
+    existingStatus.remove();
+  }
+  
+  const container = document.querySelector('.container');
+  const statusDiv = document.createElement('div');
+  statusDiv.id = 'game-status';
+  statusDiv.style.textAlign = 'center';
+  statusDiv.style.margin = '20px';
+  statusDiv.style.fontSize = '1.2em';
+  
+  // Insert after the container
+  if (container.nextSibling) {
+    container.parentNode.insertBefore(statusDiv, container.nextSibling);
+  } else {
+    container.parentNode.appendChild(statusDiv);
+  }
+  
+  function updateText() {
+    if (placingShips === 1) {
+      statusDiv.textContent = "Player 1's turn to place ships";
+    } else if (placingShips === 2) {
+      statusDiv.textContent = "Player 2's turn to place ships";
+      // Hide computer play button when player 1 finishes without choosing computer
+      const button = document.querySelector('#btn');
+      const form = document.querySelector('form');
+      if (button && form) {
+        form.remove();
+      }
+    } else if (placingShips === 3) {
+      if (isComputerGame) {
+        statusDiv.textContent = currentTurn === 1 ? 
+          "Your turn to attack Computer's grid" : 
+          "Computer is thinking...";
+      } else {
+        statusDiv.textContent = `Player ${currentTurn}'s turn to attack`;
+      }
+    }
+  }
+  
+  return { updateText };
 }
 
 export { initializeGameEvents };
