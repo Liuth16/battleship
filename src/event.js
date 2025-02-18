@@ -1,5 +1,5 @@
 import ship from "./ship";
-import { createShipSelection } from "./interface";
+import { createShipSelection, player } from "./interface";
 import computerPlayer from "./computer";
 
 let currentTurn = 1;
@@ -7,6 +7,44 @@ let placingShips = 1;
 let gameOver = false;
 let player1Instance;
 let player2Instance;
+let isComputerGame = false;
+let computerInstance;
+
+function checkVictory(player1, player2) {
+  if (player1.allShipsSunk()) {
+    gameOver = true;
+    alert("Player 2 Wins!");
+    disableAllGrids();
+    return true;
+  }
+  if (player2.allShipsSunk()) {
+    gameOver = true;
+    alert("Player 1 Wins!");
+    disableAllGrids();
+    return true;
+  }
+  return false;
+}
+
+function initializeComputerGame() {
+  computerInstance = computerPlayer();
+  // Clear any existing ships from player2's board
+  player2Instance = player();
+  player2Instance.setupBoard();
+  callBoth();
+  placingShips = 3; // Enable attack phase
+  updateGridsInteractivity();
+}
+
+function playComputer() {
+  const button = document.querySelector("#btn");
+  button.addEventListener("click", (e) => {
+    e.preventDefault();
+    isComputerGame = true;
+    const form = document.querySelector("form");
+    if (form) form.remove();
+  });
+}
 
 function disableAllGrids() {
   const allCells = document.querySelectorAll(".cell");
@@ -45,21 +83,23 @@ function checkShipPlacement() {
     disableAllGrids();
     enableGrid(1);
     if (player1Instance.addedShips.length >= 10) {
-      placingShips += 1;
-      disableGrid(1);
-      enableGrid(2);
-      dragTarget(placingShips);
-      createShipSelection();
-      rotateShip();
-      draggableSource();
+      if (isComputerGame) {
+        initializeComputerGame();
+      } else {
+        placingShips = 2;
+        disableGrid(1);
+        enableGrid(2);
+        dragTarget(placingShips);
+        createShipSelection();
+        rotateShip();
+        draggableSource();
+      }
     }
-  } else if (placingShips === 2) {
-    draggableSource();
+  } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
-      placingShips += 1;
+      placingShips = 3;
+      updateGridsInteractivity();
     }
-  } else {
-    updateGridsInteractivity();
   }
 }
 
@@ -187,49 +227,73 @@ function doRotation(ship) {
   }
 }
 
-function checkVictory(player1, player2) {
-  if (player1Instance.allShipsSunk()) {
-    gameOver = true;
-    alert("Player 2 wins!");
-    disableAllGrids();
-    return true;
-  }
-  if (player2Instance.allShipsSunk()) {
-    gameOver = true;
-    alert("Player 1 wins!");
-    disableAllGrids();
-    return true;
-  }
-  return false;
-}
+function handleComputerTurn() {
+  if (!isComputerGame || currentTurn !== 2 || gameOver) return;
 
-function updateGridsInteractivity() {
-  if (gameOver) return;
-  if (placingShips !== 3) return;
-  const grid1Cells = document.querySelectorAll(".grid1 .cell");
-  const grid2Cells = document.querySelectorAll(".grid2 .cell");
+  setTimeout(() => {
+    computerInstance.shoot(player1Instance);
+    const lastShot =
+      player1Instance.shotCoordinates[
+        player1Instance.shotCoordinates.length - 1
+      ];
+    const cell = document.querySelector(
+      `.grid1 [data-row="${lastShot[0]}"][data-col="${lastShot[1]}"]`
+    );
 
-  // Disable all cells first
-  [...grid1Cells, ...grid2Cells].forEach((cell) => {
-    cell.style.pointerEvents = "none";
-  });
-
-  // Enable only the active player's grid cells
-  const activeCells = currentTurn === 1 ? grid2Cells : grid1Cells;
-  activeCells.forEach((cell) => {
-    if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
-      cell.style.pointerEvents = "auto";
+    if (
+      player1Instance.addedShips.some(({ coordinates }) =>
+        coordinates.some(
+          ([row, col]) => row === lastShot[0] && col === lastShot[1]
+        )
+      )
+    ) {
+      cell.classList.add("hit");
+      cell.textContent = "X";
+    } else {
+      cell.classList.add("miss");
+      cell.textContent = "O";
     }
-  });
+
+    if (!checkVictory(player1Instance, player2Instance)) {
+      switchTurn();
+    }
+  }, 500);
 }
 
 function switchTurn() {
+  if (gameOver) return;
   currentTurn = currentTurn === 1 ? 2 : 1;
   updateGridsInteractivity();
+
+  if (isComputerGame && currentTurn === 2) {
+    handleComputerTurn();
+  }
+}
+
+function updateGridsInteractivity() {
+  const grid1Cells = document.querySelectorAll(".grid1 .cell");
+  const grid2Cells = document.querySelectorAll(".grid2 .cell");
+
+  if (currentTurn === 1) {
+    grid1Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
+    grid2Cells.forEach((cell) => {
+      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
+        cell.style.pointerEvents = "auto";
+      }
+    });
+  } else {
+    grid2Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
+    grid1Cells.forEach((cell) => {
+      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
+        cell.style.pointerEvents = "auto";
+      }
+    });
+  }
 }
 
 function handleCellClick(cell, attackingPlayer, defendingPlayer) {
-  if (placingShips !== 3) return;
+  if (placingShips < 3) return;
+
   const row = parseInt(cell.getAttribute("data-row"), 10);
   const col = parseInt(cell.getAttribute("data-col"), 10);
 
@@ -244,6 +308,7 @@ function handleCellClick(cell, attackingPlayer, defendingPlayer) {
   }
 
   cell.style.pointerEvents = "none";
+
   if (!checkVictory(player1Instance, player2Instance)) {
     switchTurn();
   }
@@ -266,6 +331,7 @@ function initializeGameEvents(p1, p2) {
   });
   rotateShip();
   draggableSource();
+  playComputer();
   checkShipPlacement();
   dragTarget(placingShips);
 }
