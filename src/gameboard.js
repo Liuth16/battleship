@@ -100,13 +100,60 @@ export default function gameboard() {
     return addedShips.every(({ ship }) => ship.isSunk());
   }
 
+  function setupBoard() {
+    const shipsToPlace = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    let attempts = 0;
+    const maxAttempts = 1000; // To prevent infinite loop
+
+    function placeShip(size) {
+      let placed = false;
+      while (!placed && attempts < maxAttempts) {
+        attempts++;
+
+        // Random coordinate
+        const randomIndex = Math.floor(Math.random() * 100);
+        const startCoord = this.coordinates[randomIndex];
+
+        // Random direction
+        const isHorizontal = Math.random() < 0.5;
+
+        placed = this.addShip(size, startCoord, isHorizontal);
+      }
+
+      if (!placed) {
+        console.error(
+          `Failed to place ship of size ${size} after ${maxAttempts} attempts!`
+        );
+        return false;
+      }
+      return true;
+    }
+
+    for (const size of shipsToPlace) {
+      if (!placeShip.call(this, size)) {
+        // If any ship can't be placed, you might want to reset the board or handle this differently
+        console.error("Board setup failed.");
+        return false;
+      }
+    }
+
+    return true; // All ships placed successfully
+  }
+
   return {
     coordinates,
     get addedShips() {
       return addedShips;
     },
+    get shotCoordinates() {
+      return shotCoordinates;
+    },
+    get blockedTiles() {
+      return blockedTiles;
+    },
     addShip,
     receiveAttack,
     allShipsSunk,
+    setupBoard,
   };
 }

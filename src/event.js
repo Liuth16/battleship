@@ -1,5 +1,6 @@
 import ship from "./ship";
 import { createShipSelection } from "./interface";
+import computerPlayer from "./computer";
 
 let currentTurn = 1;
 let placingShips = 1;
@@ -49,10 +50,10 @@ function checkShipPlacement() {
       enableGrid(2);
       dragTarget(placingShips);
       createShipSelection();
+      rotateShip();
       draggableSource();
     }
   } else if (placingShips === 2) {
-    rotateShip();
     draggableSource();
     if (player2Instance.addedShips.length >= 10) {
       placingShips += 1;
@@ -152,6 +153,9 @@ function dragTarget(gridId) {
 
     cell.addEventListener("drop", (e) => {
       e.preventDefault();
+      document
+        .querySelectorAll(".dragover")
+        .forEach((c) => c.classList.remove("dragover"));
       const col = Number(e.target.dataset.col);
       const row = Number(e.target.dataset.row);
       const draggedElement = document.querySelector(".dragging");
