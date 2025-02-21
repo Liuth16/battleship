@@ -114,7 +114,7 @@ function checkShipPlacement() {
         initializeComputerGame();
       } else {
         placingShips = 2;
-        markCell(player1Instance.addedShips, 1, true); // Only hide ships in human vs human
+        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
         disableGrid(1);
         enableGrid(2);
         dragTarget(placingShips);
@@ -127,6 +127,7 @@ function checkShipPlacement() {
   } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
       placingShips = 3;
+      markCell(player2Instance.addedShips, 2, true); // Hide player 2's ships
       updateGridsInteractivity();
       gameStatus.updateText();
     }
