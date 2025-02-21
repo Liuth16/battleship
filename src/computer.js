@@ -24,28 +24,29 @@ export default function computerPlayer() {
   function getAdjacentCoordinates([row, col]) {
     const adjacentOffsets = [
       [-1, 0], // Up
-      [1, 0],  // Down
+      [1, 0], // Down
       [0, -1], // Left
-      [0, 1],  // Right
+      [0, 1], // Right
     ];
 
     return adjacentOffsets
       .map(([offsetRow, offsetCol]) => [row + offsetRow, col + offsetCol])
-      .filter(coord => 
-        isValidCoordinate(coord) &&
-        shootableCoord.some(([sRow, sCol]) => 
-          sRow === coord[0] && sCol === coord[1]
-        )
+      .filter(
+        (coord) =>
+          isValidCoordinate(coord) &&
+          shootableCoord.some(
+            ([sRow, sCol]) => sRow === coord[0] && sCol === coord[1]
+          )
       );
   }
 
   function processHitCoordinates(hitCoord) {
     // Clear previous best shots when we get a new hit
     bestShots = [];
-    
+
     // Get adjacent coordinates for the hit
     const adjacentCoords = getAdjacentCoordinates(hitCoord);
-    
+
     // Add all valid adjacent coordinates to bestShots
     bestShots.push(...adjacentCoords);
   }

@@ -65,7 +65,7 @@ function callBoth() {
     // During game phase
     if (isComputerGame) {
       markCell(player1Instance.addedShips, 1, false); // Keep player 1's ships visible
-      markCell(player2Instance.addedShips, 2, true);  // Hide computer's ships
+      markCell(player2Instance.addedShips, 2, true); // Hide computer's ships
     } else {
       // Human vs Human - hide both players' ships
       markCell(player1Instance.addedShips, 1, true);
@@ -79,7 +79,7 @@ function markCell(addedShips, gridNumber, hideShips = false) {
 
   cells.forEach((cell) => {
     // Don't modify cells that are already hit or missed
-    if (cell.classList.contains('hit') || cell.classList.contains('miss')) {
+    if (cell.classList.contains("hit") || cell.classList.contains("miss")) {
       return;
     }
 
@@ -260,22 +260,31 @@ function doRotation(ship) {
 
 function handleComputerTurn() {
   if (!isComputerGame || currentTurn !== 2 || gameOver) return;
-  
+
   setTimeout(() => {
     computerInstance.shoot(player1Instance);
-    const lastShot = player1Instance.shotCoordinates[player1Instance.shotCoordinates.length - 1];
-    const cell = document.querySelector(`.grid1 [data-row="${lastShot[0]}"][data-col="${lastShot[1]}"]`);
-    
-    if (player1Instance.addedShips.some(({coordinates}) => 
-      coordinates.some(([row, col]) => row === lastShot[0] && col === lastShot[1])
-    )) {
+    const lastShot =
+      player1Instance.shotCoordinates[
+        player1Instance.shotCoordinates.length - 1
+      ];
+    const cell = document.querySelector(
+      `.grid1 [data-row="${lastShot[0]}"][data-col="${lastShot[1]}"]`
+    );
+
+    if (
+      player1Instance.addedShips.some(({ coordinates }) =>
+        coordinates.some(
+          ([row, col]) => row === lastShot[0] && col === lastShot[1]
+        )
+      )
+    ) {
       cell.classList.add("hit");
       cell.textContent = "X";
     } else {
       cell.classList.add("miss");
       cell.textContent = "O";
     }
-    
+
     if (!checkVictory(player1Instance, player2Instance)) {
       switchTurn();
     }
@@ -287,28 +296,28 @@ function switchTurn() {
   currentTurn = currentTurn === 1 ? 2 : 1;
   updateGridsInteractivity();
   gameStatus.updateText();
-  
+
   if (isComputerGame && currentTurn === 2) {
     handleComputerTurn();
   }
 }
 
 function updateGridsInteractivity() {
-  const grid1Cells = document.querySelectorAll('.grid1 .cell');
-  const grid2Cells = document.querySelectorAll('.grid2 .cell');
-  
+  const grid1Cells = document.querySelectorAll(".grid1 .cell");
+  const grid2Cells = document.querySelectorAll(".grid2 .cell");
+
   if (currentTurn === 1) {
-    grid1Cells.forEach(cell => cell.style.pointerEvents = 'none');
-    grid2Cells.forEach(cell => {
-      if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
-        cell.style.pointerEvents = 'auto';
+    grid1Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
+    grid2Cells.forEach((cell) => {
+      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
+        cell.style.pointerEvents = "auto";
       }
     });
   } else {
-    grid2Cells.forEach(cell => cell.style.pointerEvents = 'none');
-    grid1Cells.forEach(cell => {
-      if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
-        cell.style.pointerEvents = 'auto';
+    grid2Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
+    grid1Cells.forEach((cell) => {
+      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
+        cell.style.pointerEvents = "auto";
       }
     });
   }
@@ -316,15 +325,15 @@ function updateGridsInteractivity() {
 
 function handleCellClick(cell, attackingPlayer, defendingPlayer) {
   if (placingShips < 3) return;
-  
+
   const row = parseInt(cell.getAttribute("data-row"), 10);
   const col = parseInt(cell.getAttribute("data-col"), 10);
-  
+
   const hit = defendingPlayer.receiveAttack([row, col]);
-  
+
   // Remove invisible-ship class if it exists
   cell.classList.remove("invisible-ship");
-  
+
   if (hit) {
     cell.classList.add("hit");
     cell.textContent = "X";
@@ -332,9 +341,9 @@ function handleCellClick(cell, attackingPlayer, defendingPlayer) {
     cell.classList.add("miss");
     cell.textContent = "O";
   }
-  
+
   cell.style.pointerEvents = "none";
-  
+
   if (!checkVictory(player1Instance, player2Instance)) {
     switchTurn();
     gameStatus.updateText();
@@ -366,47 +375,48 @@ function initializeGameEvents(p1, p2) {
 }
 
 function updateGameStatus() {
-  const existingStatus = document.getElementById('game-status');
+  const existingStatus = document.getElementById("game-status");
   if (existingStatus) {
     existingStatus.remove();
   }
-  
-  const container = document.querySelector('.container');
-  const statusDiv = document.createElement('div');
-  statusDiv.id = 'game-status';
-  statusDiv.style.textAlign = 'center';
-  statusDiv.style.margin = '20px';
-  statusDiv.style.fontSize = '1.2em';
-  
+
+  const container = document.querySelector(".container");
+  const statusDiv = document.createElement("div");
+  statusDiv.id = "game-status";
+  statusDiv.style.textAlign = "center";
+  statusDiv.style.margin = "20px";
+  statusDiv.style.fontSize = "1.2em";
+
   // Insert after the container
   if (container.nextSibling) {
     container.parentNode.insertBefore(statusDiv, container.nextSibling);
   } else {
     container.parentNode.appendChild(statusDiv);
   }
-  
+
   function updateText() {
     if (placingShips === 1) {
       statusDiv.textContent = "Player 1's turn to place ships";
     } else if (placingShips === 2) {
       statusDiv.textContent = "Player 2's turn to place ships";
       // Hide computer play button when player 1 finishes without choosing computer
-      const button = document.querySelector('#btn');
-      const form = document.querySelector('form');
+      const button = document.querySelector("#btn");
+      const form = document.querySelector("form");
       if (button && form) {
         form.remove();
       }
     } else if (placingShips === 3) {
       if (isComputerGame) {
-        statusDiv.textContent = currentTurn === 1 ? 
-          "Your turn to attack Computer's grid" : 
-          "Computer is thinking...";
+        statusDiv.textContent =
+          currentTurn === 1
+            ? "Your turn to attack Computer's grid"
+            : "Computer is thinking...";
       } else {
         statusDiv.textContent = `Player ${currentTurn}'s turn to attack`;
       }
     }
   }
-  
+
   return { updateText };
 }
 
