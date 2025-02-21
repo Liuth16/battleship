@@ -55,14 +55,27 @@ function disableAllGrids() {
 }
 
 function callBoth() {
-  markCell(player1Instance.addedShips, 1);
-  markCell(player2Instance.addedShips, 2);
+  if (placingShips === 1) {
+    markCell(player1Instance.addedShips, 1, false);
+    markCell(player2Instance.addedShips, 2, true);
+  } else if (placingShips === 2) {
+    markCell(player1Instance.addedShips, 1, true);
+    markCell(player2Instance.addedShips, 2, false);
+  } else {
+    markCell(player1Instance.addedShips, 1, true);
+    markCell(player2Instance.addedShips, 2, true);
+  }
 }
 
-function markCell(addedShips, gridNumber) {
+function markCell(addedShips, gridNumber, hideShips = false) {
   const cells = document.querySelectorAll(`.grid${gridNumber} .cell`);
 
   cells.forEach((cell) => {
+    // Don't modify cells that are already hit or missed
+    if (cell.classList.contains('hit') || cell.classList.contains('miss')) {
+      return;
+    }
+
     const row = parseInt(cell.getAttribute("data-row"));
     const col = parseInt(cell.getAttribute("data-col"));
 
@@ -74,7 +87,12 @@ function markCell(addedShips, gridNumber) {
 
     if (isShip) {
       cell.classList.add("ship");
-      cell.textContent = "S";
+      if (hideShips) {
+        cell.classList.add("invisible-ship");
+        cell.textContent = "";
+      } else {
+        cell.textContent = "S";
+      }
     }
   });
 }
@@ -85,9 +103,11 @@ function checkShipPlacement() {
     enableGrid(1);
     if (player1Instance.addedShips.length >= 10) {
       if (isComputerGame) {
+        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
         initializeComputerGame();
       } else {
         placingShips = 2;
+        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
         disableGrid(1);
         enableGrid(2);
         dragTarget(placingShips);
@@ -100,6 +120,7 @@ function checkShipPlacement() {
   } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
       placingShips = 3;
+      markCell(player2Instance.addedShips, 2, true); // Hide player 2's ships
       updateGridsInteractivity();
       gameStatus.updateText();
     }
@@ -232,31 +253,22 @@ function doRotation(ship) {
 
 function handleComputerTurn() {
   if (!isComputerGame || currentTurn !== 2 || gameOver) return;
-
+  
   setTimeout(() => {
     computerInstance.shoot(player1Instance);
-    const lastShot =
-      player1Instance.shotCoordinates[
-        player1Instance.shotCoordinates.length - 1
-      ];
-    const cell = document.querySelector(
-      `.grid1 [data-row="${lastShot[0]}"][data-col="${lastShot[1]}"]`
-    );
-
-    if (
-      player1Instance.addedShips.some(({ coordinates }) =>
-        coordinates.some(
-          ([row, col]) => row === lastShot[0] && col === lastShot[1]
-        )
-      )
-    ) {
+    const lastShot = player1Instance.shotCoordinates[player1Instance.shotCoordinates.length - 1];
+    const cell = document.querySelector(`.grid1 [data-row="${lastShot[0]}"][data-col="${lastShot[1]}"]`);
+    
+    if (player1Instance.addedShips.some(({coordinates}) => 
+      coordinates.some(([row, col]) => row === lastShot[0] && col === lastShot[1])
+    )) {
       cell.classList.add("hit");
       cell.textContent = "X";
     } else {
       cell.classList.add("miss");
       cell.textContent = "O";
     }
-
+    
     if (!checkVictory(player1Instance, player2Instance)) {
       switchTurn();
     }
@@ -275,21 +287,21 @@ function switchTurn() {
 }
 
 function updateGridsInteractivity() {
-  const grid1Cells = document.querySelectorAll(".grid1 .cell");
-  const grid2Cells = document.querySelectorAll(".grid2 .cell");
-
+  const grid1Cells = document.querySelectorAll('.grid1 .cell');
+  const grid2Cells = document.querySelectorAll('.grid2 .cell');
+  
   if (currentTurn === 1) {
-    grid1Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
-    grid2Cells.forEach((cell) => {
-      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
-        cell.style.pointerEvents = "auto";
+    grid1Cells.forEach(cell => cell.style.pointerEvents = 'none');
+    grid2Cells.forEach(cell => {
+      if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
+        cell.style.pointerEvents = 'auto';
       }
     });
   } else {
-    grid2Cells.forEach((cell) => (cell.style.pointerEvents = "none"));
-    grid1Cells.forEach((cell) => {
-      if (!cell.classList.contains("hit") && !cell.classList.contains("miss")) {
-        cell.style.pointerEvents = "auto";
+    grid2Cells.forEach(cell => cell.style.pointerEvents = 'none');
+    grid1Cells.forEach(cell => {
+      if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
+        cell.style.pointerEvents = 'auto';
       }
     });
   }
@@ -297,12 +309,15 @@ function updateGridsInteractivity() {
 
 function handleCellClick(cell, attackingPlayer, defendingPlayer) {
   if (placingShips < 3) return;
-
+  
   const row = parseInt(cell.getAttribute("data-row"), 10);
   const col = parseInt(cell.getAttribute("data-col"), 10);
-
+  
   const hit = defendingPlayer.receiveAttack([row, col]);
-
+  
+  // Remove invisible-ship class if it exists
+  cell.classList.remove("invisible-ship");
+  
   if (hit) {
     cell.classList.add("hit");
     cell.textContent = "X";
@@ -310,11 +325,12 @@ function handleCellClick(cell, attackingPlayer, defendingPlayer) {
     cell.classList.add("miss");
     cell.textContent = "O";
   }
-
+  
   cell.style.pointerEvents = "none";
-
+  
   if (!checkVictory(player1Instance, player2Instance)) {
     switchTurn();
+    gameStatus.updateText();
   }
 }
 
