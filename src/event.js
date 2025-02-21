@@ -62,8 +62,15 @@ function callBoth() {
     markCell(player1Instance.addedShips, 1, true);
     markCell(player2Instance.addedShips, 2, false);
   } else {
-    markCell(player1Instance.addedShips, 1, true);
-    markCell(player2Instance.addedShips, 2, true);
+    // During game phase
+    if (isComputerGame) {
+      markCell(player1Instance.addedShips, 1, false); // Keep player 1's ships visible
+      markCell(player2Instance.addedShips, 2, true);  // Hide computer's ships
+    } else {
+      // Human vs Human - hide both players' ships
+      markCell(player1Instance.addedShips, 1, true);
+      markCell(player2Instance.addedShips, 2, true);
+    }
   }
 }
 
@@ -91,6 +98,7 @@ function markCell(addedShips, gridNumber, hideShips = false) {
         cell.classList.add("invisible-ship");
         cell.textContent = "";
       } else {
+        cell.classList.remove("invisible-ship"); // Remove invisible class if exists
         cell.textContent = "S";
       }
     }
@@ -103,11 +111,10 @@ function checkShipPlacement() {
     enableGrid(1);
     if (player1Instance.addedShips.length >= 10) {
       if (isComputerGame) {
-        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
         initializeComputerGame();
       } else {
         placingShips = 2;
-        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
+        markCell(player1Instance.addedShips, 1, true); // Only hide ships in human vs human
         disableGrid(1);
         enableGrid(2);
         dragTarget(placingShips);
@@ -120,7 +127,6 @@ function checkShipPlacement() {
   } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
       placingShips = 3;
-      markCell(player2Instance.addedShips, 2, true); // Hide player 2's ships
       updateGridsInteractivity();
       gameStatus.updateText();
     }
