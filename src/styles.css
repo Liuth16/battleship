@@ -82,11 +82,13 @@ h6 {
 }
 
 .hit {
-  background-color: #ff6b6b;
+  background-color: #ff6b6b !important;
+  color: white !important;
 }
 
 .miss {
-  background-color: #a8a8a8;
+  background-color: #a8a8a8 !important;
+  color: white !important;
 }
 
 .ship-selection {
@@ -97,13 +99,13 @@ h6 {
 }
 
 .ship-choice {
-  /* height: 49px; */
+  height: 40px;
   background-color: #4a90e2;
+  cursor: move;
 }
 
 .ship-choice:hover {
   background-color: #357abd;
-  cursor: move;
 }
 
 .play-button {
@@ -145,4 +147,9 @@ h6 {
   width: 100%;
   text-align: center;
   margin-top: 20px;
+}
+
+.invisible-ship {
+  background-color: transparent !important;
+  color: transparent !important;
 }
