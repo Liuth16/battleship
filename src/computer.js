@@ -6,6 +6,7 @@ export default function computerPlayer() {
   let shootableCoord = [...existingCoord];
   const shipsHit = [];
   let bestShots = [];
+  let lastHitCoord = null;
 
   function removeShotCoordinates(allCoordinates, shotCoordinates) {
     return allCoordinates.filter(
@@ -16,37 +17,50 @@ export default function computerPlayer() {
     );
   }
 
-  function processHitCoordinates(shipsHit, shootableCoord) {
-    if (shipsHit.length === 0) return []; // No hits to process
+  function isValidCoordinate([row, col]) {
+    return row >= 0 && row < 10 && col >= 0 && col < 10;
+  }
 
-    // Get (but do not remove) the last hit coordinate
-    const [hitRow, hitCol] = shipsHit[shipsHit.length - 1];
-
+  function getAdjacentCoordinates([row, col]) {
     const adjacentOffsets = [
       [-1, 0], // Up
-      [1, 0], // Down
+      [1, 0],  // Down
       [0, -1], // Left
-      [0, 1], // Right
+      [0, 1],  // Right
     ];
 
     return adjacentOffsets
-      .map(([offsetRow, offsetCol]) => [hitRow + offsetRow, hitCol + offsetCol])
-      .filter(([newRow, newCol]) =>
-        shootableCoord.some(
-          ([sRow, sCol]) => sRow === newRow && sCol === newCol
+      .map(([offsetRow, offsetCol]) => [row + offsetRow, col + offsetCol])
+      .filter(coord => 
+        isValidCoordinate(coord) &&
+        shootableCoord.some(([sRow, sCol]) => 
+          sRow === coord[0] && sCol === coord[1]
         )
       );
   }
 
-  function shoot(enemyBoard) {
-    if (shipsHit.length > 0) {
-      bestShots = processHitCoordinates(shipsHit, shootableCoord);
-    }
+  function processHitCoordinates(hitCoord) {
+    // Clear previous best shots when we get a new hit
+    bestShots = [];
+    
+    // Get adjacent coordinates for the hit
+    const adjacentCoords = getAdjacentCoordinates(hitCoord);
+    
+    // Add all valid adjacent coordinates to bestShots
+    bestShots.push(...adjacentCoords);
+  }
 
+  function shoot(enemyBoard) {
     let getCoord;
+
     if (bestShots.length > 0) {
-      getCoord = bestShots.pop(); // Use the best shot
+      // Randomly select one of the best shots
+      const randomIndex = Math.floor(Math.random() * bestShots.length);
+      getCoord = bestShots[randomIndex];
+      // Remove the selected coordinate from bestShots
+      bestShots.splice(randomIndex, 1);
     } else {
+      // No best shots available, choose a random coordinate
       const randomIndex = Math.floor(Math.random() * shootableCoord.length);
       getCoord = shootableCoord[randomIndex];
     }
@@ -55,11 +69,14 @@ export default function computerPlayer() {
 
     const shipHit = enemyBoard.receiveAttack(getCoord);
 
-    if (shipHit) {
-      shipsHit.push(getCoord);
-    }
-
+    // Remove the shot coordinate from shootable coordinates
     shootableCoord = removeShotCoordinates(shootableCoord, [getCoord]);
+
+    if (shipHit) {
+      // If we hit a ship, process adjacent coordinates
+      processHitCoordinates(getCoord);
+      lastHitCoord = getCoord;
+    }
   }
 
   return { shoot };
