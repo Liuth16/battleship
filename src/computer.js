@@ -4,7 +4,6 @@ export default function computerPlayer() {
     i % 10,
   ]);
   let shootableCoord = [...existingCoord];
-  const shipsHit = [];
   let bestShots = [];
   let lastHitCoord = null;
 
