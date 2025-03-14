@@ -79,5 +79,13 @@ export default function computerPlayer() {
     }
   }
 
-  return { shoot };
+  return {
+    shoot,
+    get shootableCoord() {
+      return [...shootableCoord];
+    },
+    get bestShots() {
+      return [...bestShots];
+    },
+  };
 }
