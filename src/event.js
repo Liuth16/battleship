@@ -1,4 +1,3 @@
-import ship from "./ship";
 import { createShipSelection, player } from "./interface";
 import computerPlayer from "./computer";
 
@@ -29,11 +28,10 @@ function checkVictory(player1, player2) {
 
 function initializeComputerGame() {
   computerInstance = computerPlayer();
-  // Clear any existing ships from player2's board
   player2Instance = player();
   player2Instance.setupBoard();
   callBoth();
-  placingShips = 3; // Enable attack phase
+  placingShips = 3;
   updateGridsInteractivity();
 }
 
@@ -41,9 +39,16 @@ function playComputer() {
   const button = document.querySelector("#btn");
   button.addEventListener("click", (e) => {
     e.preventDefault();
-    isComputerGame = true;
+    const optionSelected = document.querySelector("#second-player").value;
+    console.log(optionSelected);
+    if (optionSelected === "computer") {
+      isComputerGame = true;
+    }
+    console.log(isComputerGame);
     const form = document.querySelector("form");
+    const modal = document.querySelector("#mode-modal");
     if (form) form.remove();
+    modal.style.display = "none";
   });
 }
 
@@ -61,16 +66,12 @@ function callBoth() {
   } else if (placingShips === 2) {
     markCell(player1Instance.addedShips, 1, true);
     markCell(player2Instance.addedShips, 2, false);
+  } else if (isComputerGame) {
+    markCell(player1Instance.addedShips, 1, false);
+    markCell(player2Instance.addedShips, 2, true);
   } else {
-    // During game phase
-    if (isComputerGame) {
-      markCell(player1Instance.addedShips, 1, false); // Keep player 1's ships visible
-      markCell(player2Instance.addedShips, 2, true); // Hide computer's ships
-    } else {
-      // Human vs Human - hide both players' ships
-      markCell(player1Instance.addedShips, 1, true);
-      markCell(player2Instance.addedShips, 2, true);
-    }
+    markCell(player1Instance.addedShips, 1, true);
+    markCell(player2Instance.addedShips, 2, true);
   }
 }
 
@@ -98,7 +99,7 @@ function markCell(addedShips, gridNumber, hideShips = false) {
         cell.classList.add("invisible-ship");
         cell.textContent = "";
       } else {
-        cell.classList.remove("invisible-ship"); // Remove invisible class if exists
+        cell.classList.remove("invisible-ship");
         cell.textContent = "S";
       }
     }
@@ -114,7 +115,7 @@ function checkShipPlacement() {
         initializeComputerGame();
       } else {
         placingShips = 2;
-        markCell(player1Instance.addedShips, 1, true); // Hide player 1's ships
+        markCell(player1Instance.addedShips, 1, true);
         disableGrid(1);
         enableGrid(2);
         dragTarget(placingShips);
@@ -127,7 +128,7 @@ function checkShipPlacement() {
   } else if (placingShips === 2 && !isComputerGame) {
     if (player2Instance.addedShips.length >= 10) {
       placingShips = 3;
-      markCell(player2Instance.addedShips, 2, true); // Hide player 2's ships
+      markCell(player2Instance.addedShips, 2, true);
       updateGridsInteractivity();
       gameStatus.updateText();
     }

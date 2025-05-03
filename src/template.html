@@ -9,17 +9,20 @@
     <div class="container">
       <div class="grid1"></div>
       <div class="grid2"></div>
-      <form action="#">
-        <label for="second-player">
-          <span>Play against computer: </span>
-          <p>
-          <select name="second-player" id="second-player">
-            <option value="computer">Computer</option>
-          </select>
-          <button type="submit" id="btn">Play</button>
-        </p>
-        </label>
-      </form>
+      <div id="mode-modal" class="modal">
+        <form action="#" class="modal-content">
+          <label for="second-player">
+            <span>Play against: </span>
+            <p>
+              <select name="second-player" id="second-player">
+                <option value="computer">Computer</option>
+                <option value="player">Other player (shared-screen)</option>
+              </select>
+              <button type="submit" id="btn">Play</button>
+            </p>
+          </label>
+        </form>
+      </div>
     </div>
   </body>
 </html>
