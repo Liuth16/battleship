@@ -397,7 +397,8 @@ function updateGameStatus() {
 
   function updateText() {
     if (placingShips === 1) {
-      statusDiv.textContent = "Player 1's turn to place ships";
+      statusDiv.textContent =
+        "Player 1's turn to place ships (click ships to rotate)";
     } else if (placingShips === 2) {
       statusDiv.textContent = "Player 2's turn to place ships";
       // Hide computer play button when player 1 finishes without choosing computer
